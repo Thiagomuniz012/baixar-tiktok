@@ -9,6 +9,30 @@ interface TikTokVideoInfo {
   author: string;
 }
 
+interface TikTokApiData {
+  code?: number;
+  success?: boolean;
+  data?: {
+    title?: string;
+    play?: string;
+    hdplay?: string;
+    wmplay?: string;
+    hd_play?: string;
+    music?: string;
+    music_info?: {
+      play?: string;
+      url?: string;
+      play_url?: string;
+    };
+    cover?: string;
+    origin_cover?: string;
+    author?: {
+      unique_id?: string;
+      nickname?: string;
+    };
+  };
+}
+
 async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokVideoInfo | null> {
   try {
     const apis = [
@@ -17,7 +41,7 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
         url: quality === 'high'
           ? `https://tikwm.com/api/?url=${encodeURIComponent(url)}&hd=1`
           : `https://tikwm.com/api/?url=${encodeURIComponent(url)}`,
-        parser: (data: { code?: number; data?: Record<string, unknown> }) => {
+        parser: (data: TikTokApiData) => {
           if (data.code === 0 && data.data) {
             const videoData = data.data;
             
@@ -57,7 +81,7 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
         url: quality === 'high'
           ? `https://tikwm.com/api/?url=${encodeURIComponent(url)}&hd=1&audio=1`
           : `https://tikwm.com/api/?url=${encodeURIComponent(url)}&audio=1`,
-        parser: (data: { code?: number; data?: Record<string, unknown> }) => {
+        parser: (data: TikTokApiData) => {
           if (data.code === 0 && data.data) {
             const videoData = data.data;
             
@@ -97,7 +121,7 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
       {
         name: 'snaptik',
         url: `https://snaptik.app/api/download?url=${encodeURIComponent(url)}`,
-        parser: (data: { success?: boolean; data?: Record<string, unknown> }) => {
+        parser: (data: TikTokApiData) => {
           if (data.success && data.data) {
             let videoUrl = '';
             if (quality === 'high') {
@@ -122,7 +146,7 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
       {
         name: 'tiktokapi',
         url: `https://tiktok-video-no-watermark2.p.rapidapi.com/?url=${encodeURIComponent(url)}`,
-        parser: (data: { data?: Record<string, unknown> }) => {
+        parser: (data: TikTokApiData) => {
           if (data.data) {
             let videoUrl = '';
             if (quality === 'high') {
