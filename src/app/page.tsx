@@ -41,7 +41,8 @@ export default function Home() {
     setVideoInfo(null);
 
     try {
-      let response: Response, data: any;
+      let response: Response;
+      let data: { success?: boolean; error?: string; data?: VideoInfo };
 
       if (quality === 'audio') {
         console.log('Baixando áudio...');

@@ -49,7 +49,9 @@ export async function GET(request: NextRequest) {
 
     const stream = new ReadableStream({
       start(controller) {
-        const dataStream = response.data as any;
+        const dataStream = response.data as {
+          on: (event: string, handler: (data?: Buffer | Error) => void) => void;
+        };
         
         dataStream.on('data', (chunk: Buffer) => {
           controller.enqueue(new Uint8Array(chunk));

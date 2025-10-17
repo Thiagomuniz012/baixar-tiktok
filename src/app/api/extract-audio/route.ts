@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         },
         data: `id=${encodeURIComponent(url)}&locale=pt&tt=audio`,
-        parser: (html: string) => {
+        parser: (html: string): string | null => {
           const audioMatch = html.match(/href="([^"]*)" rel="nofollow">Audio<\/a>/);
           if (audioMatch) {
             return audioMatch[1];
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         },
         data: `url=${encodeURIComponent(url)}`,
-        parser: (data: any) => {
+        parser: (data: { success?: boolean; audio_url?: string }): string | null => {
           if (data.success && data.audio_url) {
             return data.audio_url;
           }
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         },
         data: `url=${encodeURIComponent(url)}&token=audio`,
-        parser: (data: any) => {
+        parser: (data: string | { success?: boolean; audio?: string }): string | null => {
           try {
             const parsed = typeof data === 'string' ? JSON.parse(data) : data;
             if (parsed.success && parsed.audio) {
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        const audioUrl = api.parser(response.data as any);
+        const audioUrl = api.parser(response.data as string | { success?: boolean; audio?: string; audio_url?: string });
         
         if (audioUrl) {
           console.log(`Sucesso na extração de áudio com: ${api.name}`);
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         timeout: 15000,
       });
 
-      const y2mateData = y2mateResponse.data as any;
+      const y2mateData = y2mateResponse.data as { result?: string };
       if (y2mateData && y2mateData.result) {
         const audioMatch = y2mateData.result.match(/data-ftype="mp3"[^>]*data-fquality="[^"]*"[^>]*>.*?<a[^>]*href="([^"]*)"/) ||
                           y2mateData.result.match(/mp3[^>]*href="([^"]*)"/) ||

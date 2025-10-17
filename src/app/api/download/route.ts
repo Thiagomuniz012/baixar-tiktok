@@ -14,10 +14,10 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
     const apis = [
       {
         name: 'tikwm',
-        url: quality === 'high' 
+        url: quality === 'high'
           ? `https://tikwm.com/api/?url=${encodeURIComponent(url)}&hd=1`
           : `https://tikwm.com/api/?url=${encodeURIComponent(url)}`,
-        parser: (data: any) => {
+        parser: (data: { code?: number; data?: Record<string, unknown> }) => {
           if (data.code === 0 && data.data) {
             const videoData = data.data;
             
@@ -54,10 +54,10 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
       },
       {
         name: 'tikwm-audio',
-        url: quality === 'high' 
+        url: quality === 'high'
           ? `https://tikwm.com/api/?url=${encodeURIComponent(url)}&hd=1&audio=1`
           : `https://tikwm.com/api/?url=${encodeURIComponent(url)}&audio=1`,
-        parser: (data: any) => {
+        parser: (data: { code?: number; data?: Record<string, unknown> }) => {
           if (data.code === 0 && data.data) {
             const videoData = data.data;
             
@@ -97,7 +97,7 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
       {
         name: 'snaptik',
         url: `https://snaptik.app/api/download?url=${encodeURIComponent(url)}`,
-        parser: (data: any) => {
+        parser: (data: { success?: boolean; data?: Record<string, unknown> }) => {
           if (data.success && data.data) {
             let videoUrl = '';
             if (quality === 'high') {
@@ -122,7 +122,7 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
       {
         name: 'tiktokapi',
         url: `https://tiktok-video-no-watermark2.p.rapidapi.com/?url=${encodeURIComponent(url)}`,
-        parser: (data: any) => {
+        parser: (data: { data?: Record<string, unknown> }) => {
           if (data.data) {
             let videoUrl = '';
             if (quality === 'high') {
@@ -149,8 +149,8 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
     for (const api of apis) {
       try {
         console.log(`Tentando API: ${api.name}`);
-        
-        const headers: any = {
+
+        const headers: Record<string, string> = {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'application/json, text/plain, */*',
           'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
@@ -189,24 +189,6 @@ async function getTikTokVideoInfo(url: string, quality: string): Promise<TikTokV
     console.error('Erro ao obter informações do TikTok:', error);
     return null;
   }
-}
-
-function extractVideoId(url: string): string | null {
-  const patterns = [
-    /tiktok\.com\/@[^\/]+\/video\/(\d+)/,
-    /tiktok\.com\/v\/(\d+)/,
-    /vm\.tiktok\.com\/([A-Za-z0-9]+)/,
-    /vt\.tiktok\.com\/([A-Za-z0-9]+)/
-  ];
-
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match) {
-      return match[1];
-    }
-  }
-
-  return null;
 }
 
 export async function POST(request: NextRequest) {

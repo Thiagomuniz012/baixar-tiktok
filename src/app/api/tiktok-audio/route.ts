@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
             },
             timeout: 15000,
           });
-          
-          const data = response.data as any;
+
+          const data = response.data as string | { success?: boolean; audio?: string };
           try {
             const parsed = typeof data === 'string' ? JSON.parse(data) : data;
             if (parsed.success && parsed.audio) {
@@ -79,8 +79,8 @@ export async function POST(request: NextRequest) {
             },
             timeout: 15000,
           });
-          
-          const data = response.data as any;
+
+          const data = response.data as string | { success?: boolean; audio_url?: string };
           if (data.success && data.audio_url) {
             return data.audio_url;
           }
@@ -111,7 +111,15 @@ export async function POST(request: NextRequest) {
             const response = await axios.get(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`, {
               timeout: 5000
             });
-            const data = response.data as any;
+            const data = response.data as {
+              data?: {
+                title?: string;
+                author?: { unique_id?: string; nickname?: string };
+                cover?: string;
+                origin_cover?: string;
+                duration?: number;
+              };
+            };
             
             return NextResponse.json({
               success: true,
@@ -150,7 +158,19 @@ export async function POST(request: NextRequest) {
         timeout: 15000,
       });
 
-      const responseData = response.data as any;
+      const responseData = response.data as {
+        code?: number;
+        data?: {
+          music?: string;
+          music_info?: { play?: string; url?: string };
+          audio?: string;
+          title?: string;
+          author?: { unique_id?: string; nickname?: string };
+          cover?: string;
+          origin_cover?: string;
+          duration?: number;
+        };
+      };
       if (responseData && responseData.code === 0 && responseData.data) {
         const data = responseData.data;
         
@@ -202,7 +222,17 @@ export async function POST(request: NextRequest) {
         timeout: 15000,
       });
 
-      const responseData2 = response2.data as any;
+      const responseData2 = response2.data as {
+        code?: number;
+        data?: {
+          music?: string;
+          title?: string;
+          author?: { unique_id?: string; nickname?: string };
+          cover?: string;
+          origin_cover?: string;
+          duration?: number;
+        };
+      };
       if (responseData2 && responseData2.code === 0 && responseData2.data) {
         const data = responseData2.data;
         
